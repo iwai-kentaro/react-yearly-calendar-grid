@@ -1,0 +1,57 @@
+{
+  "name": "react-yearly-calendar-grid",
+  "version": "0.1.0",
+  "description": "A React yearly calendar component with drag & drop support",
+  "keywords": [
+    "react",
+    "calendar",
+    "yearly-calendar",
+    "drag-and-drop",
+    "schedule",
+    "event-calendar"
+  ],
+  "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup && node scripts/add-use-client.js",
+    "dev": "tsup --watch",
+    "dev:demo": "npm run dev --workspace=demo",
+    "build:demo": "npm run build --workspace=demo",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5"
+  }
+}
