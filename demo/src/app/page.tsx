@@ -3,78 +3,79 @@
 import { useState, useCallback } from "react";
 import { YearlyCalendar, CalendarEvent } from "react-yearly-calendar-grid";
 
-// サンプルイベントデータ
+// Sample event data
 const initialEvents: CalendarEvent[] = [
   {
     id: "1",
     date: new Date(2026, 0, 15),
-    title: "練習試合",
-    category: "practice",
+    title: "Team Meeting",
+    category: "meeting",
   },
   {
     id: "2",
     date: new Date(2026, 0, 22),
-    title: "公式戦",
-    category: "official",
+    title: "Conference",
+    category: "conference",
   },
-  { id: "3", date: new Date(2026, 1, 5), title: "練習", category: "training" },
+  { id: "3", date: new Date(2026, 1, 5), title: "Workshop", category: "training" },
   {
     id: "4",
     date: new Date(2026, 1, 11),
     endDate: new Date(2026, 1, 14),
-    title: "春季大会",
-    category: "official",
+    title: "Project Sprint",
+    category: "project",
   },
-  { id: "5", date: new Date(2026, 2, 20), title: "卒団式", category: "event" },
+  { id: "5", date: new Date(2026, 2, 20), title: "Review", category: "meeting" },
   {
     id: "6",
     date: new Date(2026, 3, 5),
     endDate: new Date(2026, 3, 6),
-    title: "新入団歓迎会",
+    title: "Team Building",
     category: "event",
   },
   {
     id: "7",
     date: new Date(2026, 4, 3),
     endDate: new Date(2026, 4, 10),
-    title: "春季リーグ",
-    category: "official",
+    title: "Development Phase",
+    category: "project",
   },
   {
     id: "8",
     date: new Date(2026, 6, 20),
     endDate: new Date(2026, 6, 23),
-    title: "夏合宿",
+    title: "Summer Training",
     category: "training",
   },
   {
     id: "9",
     date: new Date(2026, 7, 15),
     endDate: new Date(2026, 7, 18),
-    title: "夏季大会",
-    category: "official",
+    title: "Annual Conference",
+    category: "conference",
   },
   {
     id: "10",
     date: new Date(2026, 7, 28),
     endDate: new Date(2026, 8, 3),
-    title: "秋季強化",
-    category: "training",
+    title: "Planning Week",
+    category: "project",
   },
   {
     id: "11",
     date: new Date(2026, 4, 5),
     endDate: new Date(2026, 5, 7),
-    title: "練習試合",
-    category: "practice",
+    title: "Long Project",
+    category: "project",
   },
 ];
 
 const categoryColors: Record<string, string> = {
-  official: "#dc2626",
-  practice: "#2563eb",
+  conference: "#dc2626",
+  meeting: "#2563eb",
   training: "#16a34a",
   event: "#9333ea",
+  project: "#f59e0b",
 };
 
 export default function Home() {
@@ -90,7 +91,7 @@ export default function Home() {
 
   const handleEventClick = (event: CalendarEvent) => {
     alert(
-      `イベント: ${event.title}\n日付: ${event.date.toLocaleDateString("ja-JP")}${event.endDate ? ` 〜 ${event.endDate.toLocaleDateString("ja-JP")}` : ""}`,
+      `Event: ${event.title}\nDate: ${event.date.toLocaleDateString("en-US")}${event.endDate ? ` - ${event.endDate.toLocaleDateString("en-US")}` : ""}`,
     );
   };
 
@@ -113,11 +114,11 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
-      {/* ヘッダー：年切り替え（中央）+ 凡例（右上） */}
+      {/* Header: Year switcher (center) + Legend (right) */}
       <header className="shrink-0 z-30 bg-white shadow-md px-6 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-800 tracking-tight">年間スケジュール</h1>
+        <h1 className="text-xl font-bold text-gray-800 tracking-tight">Yearly Schedule</h1>
 
-        {/* 年切り替え（中央） */}
+        {/* Year switcher (center) */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
           <button
             onClick={() => setSelectedYear((y) => y - 1)}
@@ -126,7 +127,7 @@ export default function Home() {
             ◀
           </button>
           <span className="text-xl font-bold min-w-[90px] text-center text-gray-800">
-            {selectedYear}年
+            {selectedYear}
           </span>
           <button
             onClick={() => setSelectedYear((y) => y + 1)}
@@ -136,40 +137,47 @@ export default function Home() {
           </button>
         </div>
 
-        {/* 凡例（右上） */}
+        {/* Legend (right) */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-2.5 py-1">
             <span
               className="inline-block h-3 w-3 rounded-full shadow-sm"
-              style={{ backgroundColor: categoryColors.official }}
+              style={{ backgroundColor: categoryColors.conference }}
             />
-            <span className="text-xs font-medium text-gray-700">公式戦</span>
+            <span className="text-xs font-medium text-gray-700">Conference</span>
           </div>
           <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-2.5 py-1">
             <span
               className="inline-block h-3 w-3 rounded-full shadow-sm"
-              style={{ backgroundColor: categoryColors.practice }}
+              style={{ backgroundColor: categoryColors.meeting }}
             />
-            <span className="text-xs font-medium text-gray-700">練習試合</span>
+            <span className="text-xs font-medium text-gray-700">Meeting</span>
           </div>
           <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-2.5 py-1">
             <span
               className="inline-block h-3 w-3 rounded-full shadow-sm"
               style={{ backgroundColor: categoryColors.training }}
             />
-            <span className="text-xs font-medium text-gray-700">練習</span>
+            <span className="text-xs font-medium text-gray-700">Training</span>
           </div>
           <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-2.5 py-1">
             <span
               className="inline-block h-3 w-3 rounded-full shadow-sm"
               style={{ backgroundColor: categoryColors.event }}
             />
-            <span className="text-xs font-medium text-gray-700">イベント</span>
+            <span className="text-xs font-medium text-gray-700">Event</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-2.5 py-1">
+            <span
+              className="inline-block h-3 w-3 rounded-full shadow-sm"
+              style={{ backgroundColor: categoryColors.project }}
+            />
+            <span className="text-xs font-medium text-gray-700">Project</span>
           </div>
         </div>
       </header>
 
-      {/* カレンダー（全幅・画面いっぱい・余白付き） */}
+      {/* Calendar (full width) */}
       <div className="flex-1 bg-white overflow-auto p-4 pb-8">
         <YearlyCalendar
           year={selectedYear}
@@ -181,12 +189,12 @@ export default function Home() {
         />
       </div>
 
-      {/* 選択した日付の詳細（フローティング） */}
+      {/* Selected date details (floating) */}
       {selectedDate && (
         <div className="fixed bottom-4 right-4 z-40 rounded-lg border bg-white p-3 shadow-lg max-w-xs">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold">
-              {selectedDate.toLocaleDateString("ja-JP", {
+              {selectedDate.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
                 weekday: "short",
@@ -217,7 +225,7 @@ export default function Home() {
               ))}
             </ul>
           ) : (
-            <p className="mt-1 text-xs text-gray-500">予定なし</p>
+            <p className="mt-1 text-xs text-gray-500">No events</p>
           )}
         </div>
       )}
