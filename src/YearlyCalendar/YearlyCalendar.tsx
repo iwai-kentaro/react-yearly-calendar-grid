@@ -105,6 +105,7 @@ export function YearlyCalendar({
   onDateRangeSelect,
   onEventClick,
   onEventMove,
+  highlightRange,
   categoryColors = {},
   theme: customTheme,
 }: YearlyCalendarProps) {
@@ -306,10 +307,23 @@ export function YearlyCalendar({
   };
 
   const isInSelectionRange = (month: number, day: number): boolean => {
-    if (!rangeSelectionStart || !rangeSelectionEnd) return false;
-    const cellDate = dateToNumber(month, day);
-    const startDate = dateToNumber(rangeSelectionStart.month, rangeSelectionStart.day);
-    const endDate = dateToNumber(rangeSelectionEnd.month, rangeSelectionEnd.day);
+    // Check active drag selection
+    if (rangeSelectionStart && rangeSelectionEnd) {
+      const cellDate = dateToNumber(month, day);
+      const startDate = dateToNumber(rangeSelectionStart.month, rangeSelectionStart.day);
+      const endDate = dateToNumber(rangeSelectionEnd.month, rangeSelectionEnd.day);
+      const minDate = Math.min(startDate, endDate);
+      const maxDate = Math.max(startDate, endDate);
+      if (cellDate >= minDate && cellDate <= maxDate) return true;
+    }
+    return false;
+  };
+
+  const isInHighlightRange = (month: number, day: number): boolean => {
+    if (!highlightRange) return false;
+    const cellDate = new Date(year, month, day).getTime();
+    const startDate = highlightRange.start.getTime();
+    const endDate = highlightRange.end.getTime();
     const minDate = Math.min(startDate, endDate);
     const maxDate = Math.max(startDate, endDate);
     return cellDate >= minDate && cellDate <= maxDate;
@@ -639,6 +653,7 @@ export function YearlyCalendar({
                 const isHovered =
                   hoveredCell?.month === monthIndex && hoveredCell?.day === day;
                 const isInRange = isValidDay && isInSelectionRange(monthIndex, day);
+                const isHighlighted = isValidDay && isInHighlightRange(monthIndex, day);
 
                 return (
                   <div
@@ -648,6 +663,8 @@ export function YearlyCalendar({
                       height: rowHeight,
                       backgroundColor: isInRange
                         ? "rgba(59, 130, 246, 0.3)"
+                        : isHighlighted
+                        ? "rgba(59, 130, 246, 0.2)"
                         : getCellBackgroundColor(
                             theme,
                             isValidDay,

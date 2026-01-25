@@ -44,6 +44,7 @@ export interface YearlyCalendarProps {
   onDateRangeSelect?: (startDate: Date, endDate: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventMove?: (event: CalendarEvent, newStartDate: Date, newEndDate: Date | undefined) => void;
+  highlightRange?: { start: Date; end: Date } | null;
   categoryColors?: Record<string, string>;
   theme?: ThemeColors;
   locale?: string;
