@@ -40,6 +40,7 @@ export interface YearlyCalendarProps {
   year: number;
   events?: CalendarEvent[];
   onDateClick?: (date: Date, events: CalendarEvent[]) => void;
+  onDateDoubleClick?: (date: Date, events: CalendarEvent[]) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventMove?: (event: CalendarEvent, newStartDate: Date, newEndDate: Date | undefined) => void;
   categoryColors?: Record<string, string>;

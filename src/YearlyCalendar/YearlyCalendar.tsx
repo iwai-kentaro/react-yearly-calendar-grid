@@ -101,6 +101,7 @@ export function YearlyCalendar({
   year,
   events = [],
   onDateClick,
+  onDateDoubleClick,
   onEventClick,
   onEventMove,
   categoryColors = {},
@@ -276,6 +277,15 @@ export function YearlyCalendar({
     const date = new Date(year, month, day);
     const cellEvents = getEventsForDate(month, day);
     onDateClick(date, cellEvents);
+  };
+
+  const handleCellDoubleClick = (month: number, day: number) => {
+    if (!onDateDoubleClick) return;
+    const daysInMonth = getDaysInMonth(year, month);
+    if (day > daysInMonth) return;
+    const date = new Date(year, month, day);
+    const cellEvents = getEventsForDate(month, day);
+    onDateDoubleClick(date, cellEvents);
   };
 
   const handleDragStart = useCallback(
@@ -577,6 +587,9 @@ export function YearlyCalendar({
                     }}
                     onClick={() =>
                       isValidDay && handleCellClick(monthIndex, day)
+                    }
+                    onDoubleClick={() =>
+                      isValidDay && handleCellDoubleClick(monthIndex, day)
                     }
                     onMouseEnter={() =>
                       isValidDay && setHoveredCell({ month: monthIndex, day })
