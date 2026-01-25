@@ -9,6 +9,7 @@ export const defaultTheme: Required<ThemeColors> = {
   bgGray100: "#f3f4f6",
   bgSunday: "#fef2f2",
   bgSaturday: "#eff6ff",
+  bgHoliday: "#fef2f2",
   bgDropHighlight: "rgba(191, 219, 254, 0.5)",
 
   // ボーダー
@@ -365,10 +366,12 @@ export function getCellBackgroundColor(
   isValidDay: boolean,
   isSunday: boolean,
   isSaturday: boolean,
-  isHovered: boolean
+  isHovered: boolean,
+  isHoliday: boolean = false
 ): string {
   if (!isValidDay) return theme.bgGray100;
   if (isHovered) return theme.bgGray50;
+  if (isHoliday) return theme.bgHoliday;
   if (isSunday) return theme.bgSunday;
   if (isSaturday) return theme.bgSaturday;
   return theme.bgWhite;

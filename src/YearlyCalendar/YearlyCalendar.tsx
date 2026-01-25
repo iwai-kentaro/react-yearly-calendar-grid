@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import type { YearlyCalendarProps, CalendarEvent } from "./types";
+import type { YearlyCalendarProps, CalendarEvent, Holiday } from "./types";
 import { createStyles, mergeTheme, getCellBackgroundColor, defaultTheme } from "./styles";
 
 const MONTHS = [
@@ -100,6 +100,7 @@ function calculateLanes(spans: MonthSpan[]): Map<string, number> {
 export function YearlyCalendar({
   year,
   events = [],
+  holidays = [],
   onDateClick,
   onDateDoubleClick,
   onDateRangeSelect,
@@ -183,6 +184,26 @@ export function YearlyCalendar({
     day: number;
   } | null>(null);
   const isRangeSelecting = rangeSelectionStart !== null;
+
+  // 祝日をマップに変換（高速検索用）
+  const holidayMap = useMemo(() => {
+    const map = new Map<string, Holiday>();
+    holidays.forEach((holiday) => {
+      const dateKey = `${holiday.date.getFullYear()}-${holiday.date.getMonth()}-${holiday.date.getDate()}`;
+      map.set(dateKey, holiday);
+    });
+    return map;
+  }, [holidays]);
+
+  const isHoliday = (month: number, day: number): boolean => {
+    const dateKey = `${year}-${month}-${day}`;
+    return holidayMap.has(dateKey);
+  };
+
+  const getHoliday = (month: number, day: number): Holiday | undefined => {
+    const dateKey = `${year}-${month}-${day}`;
+    return holidayMap.get(dateKey);
+  };
 
   const monthSpans = useMemo(() => {
     const result: MonthSpan[][] = [];
@@ -650,6 +671,7 @@ export function YearlyCalendar({
                 const sunday = isValidDay && isSunday(year, monthIndex, day);
                 const saturday =
                   isValidDay && isSaturday(year, monthIndex, day);
+                const holiday = isValidDay && isHoliday(monthIndex, day);
                 const isHovered =
                   hoveredCell?.month === monthIndex && hoveredCell?.day === day;
                 const isInRange = isValidDay && isInSelectionRange(monthIndex, day);
@@ -670,7 +692,8 @@ export function YearlyCalendar({
                             isValidDay,
                             sunday,
                             saturday,
-                            isHovered && isValidDay && !isRangeSelecting
+                            isHovered && isValidDay && !isRangeSelecting,
+                            holiday
                           ),
                       cursor: isValidDay ? "pointer" : "default",
                       userSelect: "none",

@@ -7,6 +7,11 @@ export interface CalendarEvent {
   category?: string;
 }
 
+export interface Holiday {
+  date: Date;
+  name: string;
+}
+
 // テーマカラー設定
 export interface ThemeColors {
   // 背景色
@@ -15,6 +20,7 @@ export interface ThemeColors {
   bgGray100?: string;
   bgSunday?: string;      // 日曜日の背景色
   bgSaturday?: string;    // 土曜日の背景色
+  bgHoliday?: string;     // 祝日の背景色
   bgDropHighlight?: string; // ドロップ先ハイライト
 
   // ボーダー
@@ -39,6 +45,7 @@ export interface ThemeColors {
 export interface YearlyCalendarProps {
   year: number;
   events?: CalendarEvent[];
+  holidays?: Holiday[];
   onDateClick?: (date: Date, events: CalendarEvent[]) => void;
   onDateDoubleClick?: (date: Date, events: CalendarEvent[]) => void;
   onDateRangeSelect?: (startDate: Date, endDate: Date) => void;
