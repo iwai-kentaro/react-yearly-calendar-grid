@@ -54,6 +54,7 @@ export function createStyles(theme: Required<ThemeColors>) {
       display: "flex",
       width: "100%",
       flex: 1,
+      alignItems: "flex-start",
     } as CSSProperties,
 
     // 日付列（左側固定）
