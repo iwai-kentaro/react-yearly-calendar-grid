@@ -102,6 +102,7 @@ export function YearlyCalendar({
   events = [],
   onDateClick,
   onDateDoubleClick,
+  onDateRangeSelect,
   onEventClick,
   onEventMove,
   categoryColors = {},
@@ -170,6 +171,17 @@ export function YearlyCalendar({
   } | null>(null);
   const [hoveredCancelButton, setHoveredCancelButton] = useState(false);
   const [hoveredConfirmButton, setHoveredConfirmButton] = useState(false);
+
+  // Range selection state
+  const [rangeSelectionStart, setRangeSelectionStart] = useState<{
+    month: number;
+    day: number;
+  } | null>(null);
+  const [rangeSelectionEnd, setRangeSelectionEnd] = useState<{
+    month: number;
+    day: number;
+  } | null>(null);
+  const isRangeSelecting = rangeSelectionStart !== null;
 
   const monthSpans = useMemo(() => {
     const result: MonthSpan[][] = [];
@@ -287,6 +299,59 @@ export function YearlyCalendar({
     const cellEvents = getEventsForDate(month, day);
     onDateDoubleClick(date, cellEvents);
   };
+
+  // Range selection helpers
+  const dateToNumber = (month: number, day: number): number => {
+    return new Date(year, month, day).getTime();
+  };
+
+  const isInSelectionRange = (month: number, day: number): boolean => {
+    if (!rangeSelectionStart || !rangeSelectionEnd) return false;
+    const cellDate = dateToNumber(month, day);
+    const startDate = dateToNumber(rangeSelectionStart.month, rangeSelectionStart.day);
+    const endDate = dateToNumber(rangeSelectionEnd.month, rangeSelectionEnd.day);
+    const minDate = Math.min(startDate, endDate);
+    const maxDate = Math.max(startDate, endDate);
+    return cellDate >= minDate && cellDate <= maxDate;
+  };
+
+  const handleRangeSelectStart = useCallback(
+    (month: number, day: number) => {
+      if (!onDateRangeSelect) return;
+      if (draggingEvent || resizingEvent) return;
+      setRangeSelectionStart({ month, day });
+      setRangeSelectionEnd({ month, day });
+    },
+    [onDateRangeSelect, draggingEvent, resizingEvent]
+  );
+
+  const handleRangeSelectMove = useCallback(
+    (month: number, day: number) => {
+      if (!rangeSelectionStart) return;
+      setRangeSelectionEnd({ month, day });
+    },
+    [rangeSelectionStart]
+  );
+
+  const handleRangeSelectEnd = useCallback(() => {
+    if (!rangeSelectionStart || !rangeSelectionEnd || !onDateRangeSelect) {
+      setRangeSelectionStart(null);
+      setRangeSelectionEnd(null);
+      return;
+    }
+
+    const startDate = new Date(year, rangeSelectionStart.month, rangeSelectionStart.day);
+    const endDate = new Date(year, rangeSelectionEnd.month, rangeSelectionEnd.day);
+
+    // Ensure start is before end
+    const [finalStart, finalEnd] = startDate <= endDate
+      ? [startDate, endDate]
+      : [endDate, startDate];
+
+    onDateRangeSelect(finalStart, finalEnd);
+    setRangeSelectionStart(null);
+    setRangeSelectionEnd(null);
+  }, [rangeSelectionStart, rangeSelectionEnd, year, onDateRangeSelect]);
 
   const handleDragStart = useCallback(
     (
@@ -467,6 +532,10 @@ export function YearlyCalendar({
       setDragGrabOffsetY(0);
       setDragCardHeight(0);
       setDragOffset(0);
+      // End range selection on global mouse up
+      if (rangeSelectionStart) {
+        handleRangeSelectEnd();
+      }
     };
 
     window.addEventListener("mouseup", handleGlobalMouseUp);
@@ -475,7 +544,7 @@ export function YearlyCalendar({
       window.removeEventListener("mouseup", handleGlobalMouseUp);
       window.removeEventListener("dragend", handleGlobalMouseUp);
     };
-  }, []);
+  }, [rangeSelectionStart, handleRangeSelectEnd]);
 
   const getWeekdayName = (month: number, day: number) => {
     const date = new Date(year, month, day);
@@ -569,6 +638,7 @@ export function YearlyCalendar({
                   isValidDay && isSaturday(year, monthIndex, day);
                 const isHovered =
                   hoveredCell?.month === monthIndex && hoveredCell?.day === day;
+                const isInRange = isValidDay && isInSelectionRange(monthIndex, day);
 
                 return (
                   <div
@@ -576,24 +646,35 @@ export function YearlyCalendar({
                     style={{
                       ...styles.calendarCell,
                       height: rowHeight,
-                      backgroundColor: getCellBackgroundColor(
-                        theme,
-                        isValidDay,
-                        sunday,
-                        saturday,
-                        isHovered && isValidDay
-                      ),
+                      backgroundColor: isInRange
+                        ? "rgba(59, 130, 246, 0.3)"
+                        : getCellBackgroundColor(
+                            theme,
+                            isValidDay,
+                            sunday,
+                            saturday,
+                            isHovered && isValidDay && !isRangeSelecting
+                          ),
                       cursor: isValidDay ? "pointer" : "default",
+                      userSelect: "none",
                     }}
                     onClick={() =>
-                      isValidDay && handleCellClick(monthIndex, day)
+                      isValidDay && !isRangeSelecting && handleCellClick(monthIndex, day)
                     }
                     onDoubleClick={() =>
                       isValidDay && handleCellDoubleClick(monthIndex, day)
                     }
-                    onMouseEnter={() =>
-                      isValidDay && setHoveredCell({ month: monthIndex, day })
+                    onMouseDown={() =>
+                      isValidDay && handleRangeSelectStart(monthIndex, day)
                     }
+                    onMouseEnter={() => {
+                      if (isValidDay) {
+                        setHoveredCell({ month: monthIndex, day });
+                        if (isRangeSelecting) {
+                          handleRangeSelectMove(monthIndex, day);
+                        }
+                      }
+                    }}
                     onMouseLeave={() => setHoveredCell(null)}
                     onDragOver={(e) =>
                       isValidDay && handleDragOver(e, monthIndex, day)
