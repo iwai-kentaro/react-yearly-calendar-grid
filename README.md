@@ -4,6 +4,8 @@ A React component that displays a yearly calendar grid. Supports drag & drop for
 
 [Japanese / 日本語](./README.ja.md)
 
+![Screenshot](./docs/screenshot.png)
+
 ## Installation
 
 ```bash

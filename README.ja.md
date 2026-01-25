@@ -4,6 +4,8 @@
 
 [English](./README.md)
 
+![Screenshot](./docs/screenshot.png)
+
 ## インストール
 
 ```bash
