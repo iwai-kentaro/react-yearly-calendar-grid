@@ -4,20 +4,18 @@ import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import type { YearlyCalendarProps, CalendarEvent, Holiday } from "./types";
 import { createStyles, mergeTheme, getCellBackgroundColor, defaultTheme } from "./styles";
 
-const MONTHS = [
-  "1月",
-  "2月",
-  "3月",
-  "4月",
-  "5月",
-  "6月",
-  "7月",
-  "8月",
-  "9月",
-  "10月",
-  "11月",
-  "12月",
+const MONTHS_JA = [
+  "1月", "2月", "3月", "4月", "5月", "6月",
+  "7月", "8月", "9月", "10月", "11月", "12月",
 ];
+
+const MONTHS_EN = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+const WEEKDAYS_JA = ["日", "月", "火", "水", "木", "金", "土"];
+const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
 const MIN_ROW_HEIGHT = 20;
@@ -109,10 +107,17 @@ export function YearlyCalendar({
   highlightRange,
   categoryColors = {},
   theme: customTheme,
+  showWeekday = false,
+  locale = "en",
 }: YearlyCalendarProps) {
   // テーマをマージ
   const theme = useMemo(() => mergeTheme(customTheme), [customTheme]);
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  // ロケールに応じた表示
+  const isJa = locale === "ja";
+  const MONTHS = isJa ? MONTHS_JA : MONTHS_EN;
+  const WEEKDAYS = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [rowHeight, setRowHeight] = useState(MIN_ROW_HEIGHT);
@@ -583,7 +588,7 @@ export function YearlyCalendar({
 
   const getWeekdayName = (month: number, day: number) => {
     const date = new Date(year, month, day);
-    return ["日", "月", "火", "水", "木", "金", "土"][date.getDay()];
+    return WEEKDAYS[date.getDay()];
   };
 
   return (
@@ -609,8 +614,9 @@ export function YearlyCalendar({
             >
               <div style={styles.floatingDateContent}>
                 <div>
-                  {dragOverCell.month + 1}月{dragOverCell.day}日(
-                  {getWeekdayName(dragOverCell.month, dragOverCell.day)})
+                  {isJa
+                    ? `${dragOverCell.month + 1}月${dragOverCell.day}日(${getWeekdayName(dragOverCell.month, dragOverCell.day)})`
+                    : `${MONTHS[dragOverCell.month]} ${dragOverCell.day} (${getWeekdayName(dragOverCell.month, dragOverCell.day)})`}
                 </div>
                 <div style={styles.floatingDateSubtext}>
                   {draggingEvent.title}
@@ -631,9 +637,9 @@ export function YearlyCalendar({
         >
           <div style={styles.resizeFloatingContent}>
             <div>
-              {resizingEvent.edge === "start" ? "開始日：" : "終了日："}
-              {dragOverCell.month + 1}月{dragOverCell.day}日(
-              {getWeekdayName(dragOverCell.month, dragOverCell.day)})
+              {isJa
+                ? `${resizingEvent.edge === "start" ? "開始日：" : "終了日："}${dragOverCell.month + 1}月${dragOverCell.day}日(${getWeekdayName(dragOverCell.month, dragOverCell.day)})`
+                : `${resizingEvent.edge === "start" ? "Start: " : "End: "}${MONTHS[dragOverCell.month]} ${dragOverCell.day} (${getWeekdayName(dragOverCell.month, dragOverCell.day)})`}
             </div>
             <div style={styles.floatingDateSubtext}>
               {resizingEvent.event.title}
@@ -645,7 +651,7 @@ export function YearlyCalendar({
       <div style={styles.flexContainer}>
         {/* 日付列 */}
         <div style={styles.dayColumn}>
-          <div style={styles.dayHeaderCell}>日</div>
+          <div style={styles.dayHeaderCell}>{isJa ? "日" : "Day"}</div>
           {DAYS.map((day) => (
             <div key={day} style={{ ...styles.dayCell, height: rowHeight }}>
               {day}
@@ -728,7 +734,14 @@ export function YearlyCalendar({
                         handleDrop(e);
                       }
                     }}
-                  />
+                  >
+                    {/* 曜日表示 */}
+                    {showWeekday && isValidDay && (
+                      <span style={styles.weekdayLabel}>
+                        {getWeekdayName(monthIndex, day)}
+                      </span>
+                    )}
+                  </div>
                 );
               })}
 
@@ -996,15 +1009,15 @@ export function YearlyCalendar({
           <div style={styles.tooltipContent}>
             <div style={styles.tooltipTitle}>{hoveredEvent.event.title}</div>
             <div style={styles.tooltipDate}>
-              {hoveredEvent.event.date.toLocaleDateString("ja-JP", {
+              {hoveredEvent.event.date.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                 month: "short",
                 day: "numeric",
                 weekday: "short",
               })}
               {hoveredEvent.event.endDate && (
                 <>
-                  {" 〜 "}
-                  {hoveredEvent.event.endDate.toLocaleDateString("ja-JP", {
+                  {isJa ? " 〜 " : " - "}
+                  {hoveredEvent.event.endDate.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                     month: "short",
                     day: "numeric",
                     weekday: "short",
@@ -1022,22 +1035,22 @@ export function YearlyCalendar({
           <div style={styles.dialogContent}>
             <h3 style={styles.dialogTitle}>
               {pendingMove.isResize
-                ? "期間を変更しますか？"
-                : "予定を移動しますか？"}
+                ? (isJa ? "期間を変更しますか？" : "Change duration?")
+                : (isJa ? "予定を移動しますか？" : "Move event?")}
             </h3>
             <div style={styles.dialogBody}>
               <div style={styles.dialogEventTitle}>{pendingMove.event.title}</div>
               <div style={{ marginTop: 4 }}>
-                <span style={styles.dialogDateLabel}>変更前：</span>
-                {pendingMove.event.date.toLocaleDateString("ja-JP", {
+                <span style={styles.dialogDateLabel}>{isJa ? "変更前：" : "From: "}</span>
+                {pendingMove.event.date.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                   month: "long",
                   day: "numeric",
                   weekday: "short",
                 })}
                 {pendingMove.event.endDate && (
                   <>
-                    {" 〜 "}
-                    {pendingMove.event.endDate.toLocaleDateString("ja-JP", {
+                    {isJa ? " 〜 " : " - "}
+                    {pendingMove.event.endDate.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                       month: "long",
                       day: "numeric",
                       weekday: "short",
@@ -1046,16 +1059,16 @@ export function YearlyCalendar({
                 )}
               </div>
               <div style={{ marginTop: 4 }}>
-                <span style={styles.dialogDateLabel}>変更後：</span>
-                {pendingMove.newStartDate.toLocaleDateString("ja-JP", {
+                <span style={styles.dialogDateLabel}>{isJa ? "変更後：" : "To: "}</span>
+                {pendingMove.newStartDate.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                   month: "long",
                   day: "numeric",
                   weekday: "short",
                 })}
                 {pendingMove.newEndDate && (
                   <>
-                    {" 〜 "}
-                    {pendingMove.newEndDate.toLocaleDateString("ja-JP", {
+                    {isJa ? " 〜 " : " - "}
+                    {pendingMove.newEndDate.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                       month: "long",
                       day: "numeric",
                       weekday: "short",
@@ -1076,7 +1089,7 @@ export function YearlyCalendar({
                 onMouseEnter={() => setHoveredCancelButton(true)}
                 onMouseLeave={() => setHoveredCancelButton(false)}
               >
-                キャンセル
+                {isJa ? "キャンセル" : "Cancel"}
               </button>
               <button
                 onClick={handleConfirmMove}
@@ -1089,7 +1102,9 @@ export function YearlyCalendar({
                 onMouseEnter={() => setHoveredConfirmButton(true)}
                 onMouseLeave={() => setHoveredConfirmButton(false)}
               >
-                {pendingMove.isResize ? "変更する" : "移動する"}
+                {pendingMove.isResize
+                  ? (isJa ? "変更する" : "Change")
+                  : (isJa ? "移動する" : "Move")}
               </button>
             </div>
           </div>

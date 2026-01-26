@@ -66,6 +66,7 @@ function App() {
 | `categoryColors` | `Record<string, string>` | No | Colors for each category |
 | `theme` | `ThemeColors` | No | Theme color settings |
 | `highlightRange` | `{ start: Date; end: Date } \| null` | No | Date range to highlight |
+| `showWeekday` | `boolean` | No | Show weekday label in the top-right corner of each cell |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is clicked |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is double-clicked |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | No | Called when a date range is selected |

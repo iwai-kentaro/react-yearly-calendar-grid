@@ -358,6 +358,18 @@ export function createStyles(theme: Required<ThemeColors>) {
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
     } as CSSProperties,
+
+    // 曜日表示
+    weekdayLabel: {
+      position: "absolute",
+      top: 1,
+      right: 3,
+      fontSize: 9,
+      color: theme.textMuted,
+      opacity: 0.6,
+      pointerEvents: "none",
+      userSelect: "none",
+    } as CSSProperties,
   };
 }
 

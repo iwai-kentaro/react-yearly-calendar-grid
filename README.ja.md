@@ -66,6 +66,7 @@ function App() {
 | `categoryColors` | `Record<string, string>` | - | カテゴリごとの色 |
 | `theme` | `ThemeColors` | - | テーマカラー設定 |
 | `highlightRange` | `{ start: Date; end: Date } \| null` | - | ハイライトする日付範囲 |
+| `showWeekday` | `boolean` | - | 各セルの右上に曜日を表示 |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付クリック時 |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付ダブルクリック時 |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | - | 日付範囲選択時 |

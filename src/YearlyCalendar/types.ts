@@ -55,6 +55,7 @@ export interface YearlyCalendarProps {
   categoryColors?: Record<string, string>;
   theme?: ThemeColors;
   locale?: string;
+  showWeekday?: boolean; // 各セルの右上に曜日を表示
 }
 
 export interface DayCellProps {

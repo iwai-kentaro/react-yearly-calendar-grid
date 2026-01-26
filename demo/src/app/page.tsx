@@ -186,6 +186,7 @@ export default function Home() {
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
           onEventMove={handleEventMove}
+          showWeekday={true}
         />
       </div>
 
