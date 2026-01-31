@@ -179,6 +179,14 @@ export function YearlyCalendar({
   const [hoveredCancelButton, setHoveredCancelButton] = useState(false);
   const [hoveredConfirmButton, setHoveredConfirmButton] = useState(false);
 
+  // タッチ移動（長押し→タップ）
+  const [touchSelectedEvent, setTouchSelectedEvent] =
+    useState<CalendarEvent | null>(null);
+  const touchLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+
   // Range selection state
   const [rangeSelectionStart, setRangeSelectionStart] = useState<{
     month: number;
@@ -479,7 +487,15 @@ export function YearlyCalendar({
           newEndDate = new Date(newStartDate.getTime() + duration);
         }
 
-        onEventMove(draggingEvent, newStartDate, newEndDate);
+        // 同じ日付への移動はスキップ
+        if (newStartDate.getTime() !== draggingEvent.date.getTime()) {
+          setPendingMove({
+            event: draggingEvent,
+            newStartDate,
+            newEndDate,
+            isResize: false,
+          });
+        }
       }
       setDragOverCell(null);
       setDragPosition(null);
@@ -510,6 +526,80 @@ export function YearlyCalendar({
 
   const handleCancelMove = useCallback(() => {
     setPendingMove(null);
+  }, []);
+
+  // タッチ長押しでイベント選択
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent, event: CalendarEvent) => {
+      if (!onEventMove) return;
+      const touch = e.touches[0];
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+      touchLongPressTimer.current = setTimeout(() => {
+        setTouchSelectedEvent(event);
+        touchLongPressTimer.current = null;
+        // 振動フィードバック（対応デバイスのみ）
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      }, 500);
+    },
+    [onEventMove]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      // 指が動いたら長押しをキャンセル
+      if (touchLongPressTimer.current && touchStartPos.current) {
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartPos.current.x;
+        const dy = touch.clientY - touchStartPos.current.y;
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          clearTimeout(touchLongPressTimer.current);
+          touchLongPressTimer.current = null;
+        }
+      }
+    },
+    []
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (touchLongPressTimer.current) {
+      clearTimeout(touchLongPressTimer.current);
+      touchLongPressTimer.current = null;
+    }
+  }, []);
+
+  // タッチ選択中にセルをタップ → 移動確認
+  const handleTouchCellTap = useCallback(
+    (month: number, day: number) => {
+      if (!touchSelectedEvent || !onEventMove) return;
+
+      const newStartDate = new Date(year, month, day);
+      let newEndDate: Date | undefined;
+      if (touchSelectedEvent.endDate) {
+        const duration =
+          touchSelectedEvent.endDate.getTime() -
+          touchSelectedEvent.date.getTime();
+        newEndDate = new Date(newStartDate.getTime() + duration);
+      }
+
+      // 同じ日付への移動はスキップ
+      if (newStartDate.getTime() !== touchSelectedEvent.date.getTime()) {
+        setPendingMove({
+          event: touchSelectedEvent,
+          newStartDate,
+          newEndDate,
+          isResize: false,
+        });
+      }
+      setTouchSelectedEvent(null);
+    },
+    [touchSelectedEvent, year, onEventMove]
+  );
+
+  // タッチ選択をキャンセル
+  const handleCancelTouchSelect = useCallback(() => {
+    setTouchSelectedEvent(null);
   }, []);
 
   const handleResizeStart = useCallback(
@@ -548,7 +638,18 @@ export function YearlyCalendar({
         newStartDate.getTime() === newEndDate.getTime()
           ? undefined
           : newEndDate;
-      onEventMove(event, newStartDate, finalEndDate);
+
+      // 変更がない場合はスキップ
+      const startChanged = newStartDate.getTime() !== event.date.getTime();
+      const endChanged = finalEndDate?.getTime() !== event.endDate?.getTime();
+      if (startChanged || endChanged) {
+        setPendingMove({
+          event,
+          newStartDate,
+          newEndDate: finalEndDate,
+          isResize: true,
+        });
+      }
 
       setResizingEvent(null);
       setDragOverCell(null);
@@ -593,6 +694,54 @@ export function YearlyCalendar({
 
   return (
     <div ref={containerRef} style={styles.container}>
+      {/* タッチ選択パルスアニメーション */}
+      <style>{`
+        @keyframes touchSelectedPulse {
+          0%, 100% { box-shadow: 0 0 4px rgba(59, 130, 246, 0.6); }
+          50% { box-shadow: 0 0 12px rgba(59, 130, 246, 1); }
+        }
+      `}</style>
+
+      {/* タッチ選択中バナー */}
+      {touchSelectedEvent && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            backgroundColor: theme.buttonPrimary,
+            color: "#fff",
+            padding: "6px 12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: 13,
+          }}
+        >
+          <span>
+            {isJa
+              ? `「${touchSelectedEvent.title}」を移動先の日付をタップ`
+              : `Tap a date to move "${touchSelectedEvent.title}"`}
+          </span>
+          <button
+            onClick={handleCancelTouchSelect}
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              border: "none",
+              color: "#fff",
+              padding: "4px 12px",
+              borderRadius: 4,
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            {isJa ? "キャンセル" : "Cancel"}
+          </button>
+        </div>
+      )}
+
       {/* ドラッグ中のフローティング日付表示 */}
       {draggingEvent &&
         dragOverCell &&
@@ -704,9 +853,16 @@ export function YearlyCalendar({
                       cursor: isValidDay ? "pointer" : "default",
                       userSelect: "none",
                     }}
-                    onClick={() =>
-                      isValidDay && !isRangeSelecting && handleCellClick(monthIndex, day)
-                    }
+                    onClick={() => {
+                      if (!isValidDay) return;
+                      if (touchSelectedEvent) {
+                        handleTouchCellTap(monthIndex, day);
+                        return;
+                      }
+                      if (!isRangeSelecting) {
+                        handleCellClick(monthIndex, day);
+                      }
+                    }}
                     onDoubleClick={() =>
                       isValidDay && handleCellDoubleClick(monthIndex, day)
                     }
@@ -791,6 +947,8 @@ export function YearlyCalendar({
 
                   const isInteractive = !draggingEvent && !resizingEvent;
                   const isHovered = hoveredEventBar === span.event.id;
+                  const isTouchSelected =
+                    touchSelectedEvent?.id === span.event.id;
 
                   return (
                     <div
@@ -804,12 +962,26 @@ export function YearlyCalendar({
                         backgroundColor: getEventColor(span.event),
                         borderRadius: `${span.isStart ? 4 : 0}px ${span.isStart ? 4 : 0}px ${span.isEnd ? 4 : 0}px ${span.isEnd ? 4 : 0}px`,
                         opacity: isDraggingThis ? 0.3 : 1,
-                        border: isResizingThis
-                          ? "2px dashed rgba(255, 255, 255, 0.8)"
+                        border: isTouchSelected
+                          ? "2px solid rgba(255, 255, 255, 0.9)"
+                          : isResizingThis
+                            ? "2px dashed rgba(255, 255, 255, 0.8)"
+                            : "none",
+                        boxShadow: isTouchSelected
+                          ? "0 0 8px rgba(59, 130, 246, 0.8)"
                           : "none",
-                        zIndex: isResizingThis ? 30 : isHovered ? 50 : 10,
+                        zIndex: isTouchSelected
+                          ? 60
+                          : isResizingThis
+                            ? 30
+                            : isHovered
+                              ? 50
+                              : 10,
                         filter: isHovered ? "brightness(1.1)" : "none",
                         pointerEvents: isInteractive ? "auto" : "none",
+                        animation: isTouchSelected
+                          ? "touchSelectedPulse 1.5s ease-in-out infinite"
+                          : "none",
                       }}
                       draggable
                       onDragStart={(e) =>
@@ -821,6 +993,11 @@ export function YearlyCalendar({
                         )
                       }
                       onDragEnd={handleDragEnd}
+                      onTouchStart={(e) =>
+                        handleTouchStart(e, span.event)
+                      }
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
                       onMouseEnter={(e) => {
                         setHoveredEventBar(span.event.id);
                         const rect = e.currentTarget.getBoundingClientRect();
@@ -836,6 +1013,7 @@ export function YearlyCalendar({
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (touchSelectedEvent) return;
                         onEventClick?.(span.event);
                       }}
                     >
