@@ -186,6 +186,7 @@ export function YearlyCalendar({
     event: CalendarEvent;
     x: number;
     y: number;
+    bottom: number;
   } | null>(null);
 
   useEffect(() => {
@@ -896,6 +897,7 @@ export function YearlyCalendar({
                             event: span.event,
                             x: rect.left + rect.width / 2,
                             y: rect.top,
+                            bottom: rect.bottom,
                           });
                         } else {
                           // PC：直接編集
@@ -1097,15 +1099,20 @@ export function YearlyCalendar({
       )}
 
       {/* タップツールチップ（モバイル用） */}
-      {tappedEvent && !draggingEvent && !resizingEvent && (
+      {tappedEvent && !draggingEvent && !resizingEvent && (() => {
+        // 上にスペースが足りない場合は下に表示
+        const showBelow = tappedEvent.y < 100;
+        return (
         <div
           data-mobile-tooltip
           style={{
             position: "fixed",
             zIndex: 200,
             left: tappedEvent.x,
-            top: tappedEvent.y,
-            transform: "translate(-50%, -100%) translateY(-8px)",
+            top: showBelow ? tappedEvent.bottom : tappedEvent.y,
+            transform: showBelow
+              ? "translate(-50%, 8px)"
+              : "translate(-50%, -100%) translateY(-8px)",
           }}
         >
           <div style={{
@@ -1164,7 +1171,8 @@ export function YearlyCalendar({
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* 移動/リサイズ確認ダイアログ */}
       {pendingMove && (
