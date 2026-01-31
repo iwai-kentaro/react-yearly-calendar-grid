@@ -179,6 +179,12 @@ export function YearlyCalendar({
   const [hoveredCancelButton, setHoveredCancelButton] = useState(false);
   const [hoveredConfirmButton, setHoveredConfirmButton] = useState(false);
 
+  // タッチデバイス判定（ホバーツールチップの抑制用）
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
+
   // Range selection state
   const [rangeSelectionStart, setRangeSelectionStart] = useState<{
     month: number;
@@ -1017,7 +1023,7 @@ export function YearlyCalendar({
       </div>
 
       {/* ホバーツールチップ（PC用） */}
-      {hoveredEvent && !draggingEvent && !resizingEvent && (
+      {hoveredEvent && !isTouchDevice && !draggingEvent && !resizingEvent && (
         <div
           style={{
             ...styles.tooltip,
