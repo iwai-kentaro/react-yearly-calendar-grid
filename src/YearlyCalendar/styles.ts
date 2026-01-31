@@ -118,7 +118,7 @@ export function createStyles(theme: Required<ThemeColors>) {
       fontSize: 12,
       position: "sticky",
       top: 0,
-      zIndex: 10,
+      zIndex: 15,
     } as CSSProperties,
 
     // カレンダーセル（基本）
