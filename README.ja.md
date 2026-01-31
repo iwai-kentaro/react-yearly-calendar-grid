@@ -81,6 +81,7 @@ interface CalendarEvent {
   date: Date;          // 開始日
   endDate?: Date;      // 終了日（複数日イベントの場合）
   title: string;       // タイトル
+  description?: string; // 説明（ツールチップに表示）
   color?: string;      // 個別の色（categoryColorsより優先）
   category?: string;   // カテゴリ（categoryColorsで色を指定）
 }

@@ -81,6 +81,7 @@ interface CalendarEvent {
   date: Date;          // Start date
   endDate?: Date;      // End date (for multi-day events)
   title: string;       // Title
+  description?: string; // Description (displayed in tooltip)
   color?: string;      // Individual color (overrides categoryColors)
   category?: string;   // Category (use categoryColors to specify color)
 }
