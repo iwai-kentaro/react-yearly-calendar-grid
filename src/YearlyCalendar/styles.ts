@@ -80,6 +80,9 @@ export function createStyles(theme: Required<ThemeColors>) {
       fontWeight: 500,
       fontSize: 12,
       width: 32,
+      position: "sticky",
+      top: 0,
+      zIndex: 21,
     } as CSSProperties,
 
     // 日付セル
@@ -113,6 +116,9 @@ export function createStyles(theme: Required<ThemeColors>) {
       justifyContent: "center",
       fontWeight: 500,
       fontSize: 12,
+      position: "sticky",
+      top: 0,
+      zIndex: 10,
     } as CSSProperties,
 
     // カレンダーセル（基本）
