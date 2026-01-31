@@ -876,7 +876,7 @@ export function YearlyCalendar({
                       )}
 
                       {/* リサイズハンドル */}
-                      {span.event.endDate && isInteractive && (
+                      {isInteractive && (
                         <>
                           {span.isStart && (
                             <div
