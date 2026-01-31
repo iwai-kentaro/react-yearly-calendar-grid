@@ -138,7 +138,7 @@ export function YearlyCalendar({
     updateRowHeight();
     window.addEventListener("resize", updateRowHeight);
     return () => window.removeEventListener("resize", updateRowHeight);
-  }, []);
+  }, [MIN_HEIGHT]);
 
   const [draggingEvent, setDraggingEvent] = useState<CalendarEvent | null>(
     null

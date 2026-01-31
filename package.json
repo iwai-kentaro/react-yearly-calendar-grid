@@ -1,6 +1,6 @@
 {
   "name": "react-yearly-calendar-grid",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A React yearly calendar component with drag & drop support",
   "keywords": [
     "react",
