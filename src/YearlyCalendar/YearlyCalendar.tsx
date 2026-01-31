@@ -179,41 +179,6 @@ export function YearlyCalendar({
   const [hoveredCancelButton, setHoveredCancelButton] = useState(false);
   const [hoveredConfirmButton, setHoveredConfirmButton] = useState(false);
 
-  // モバイル判定（タッチデバイス）
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  // モバイル用：タップで固定表示するツールチップ
-  const [tappedEvent, setTappedEvent] = useState<{
-    event: CalendarEvent;
-    x: number;
-    y: number;
-    bottom: number;
-  } | null>(null);
-
-  useEffect(() => {
-    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
-  }, []);
-
-  // タップツールチップ外クリックで閉じる
-  useEffect(() => {
-    if (!tappedEvent) return;
-    const handleTouchOutside = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("[data-mobile-tooltip]")) return;
-      setTappedEvent(null);
-    };
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("[data-mobile-tooltip]")) return;
-      setTappedEvent(null);
-    };
-    document.addEventListener("touchstart", handleTouchOutside);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("touchstart", handleTouchOutside);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [tappedEvent]);
-
   // Range selection state
   const [rangeSelectionStart, setRangeSelectionStart] = useState<{
     month: number;
@@ -890,19 +855,7 @@ export function YearlyCalendar({
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (isTouchDevice) {
-                          // モバイル：タップでツールチップ表示
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setTappedEvent({
-                            event: span.event,
-                            x: rect.left + rect.width / 2,
-                            y: rect.top,
-                            bottom: rect.bottom,
-                          });
-                        } else {
-                          // PC：直接編集
-                          onEventClick?.(span.event);
-                        }
+                        onEventClick?.(span.event);
                       }}
                     >
                       {/* 前月から続くインジケーター */}
@@ -1064,7 +1017,7 @@ export function YearlyCalendar({
       </div>
 
       {/* ホバーツールチップ（PC用） */}
-      {hoveredEvent && !isTouchDevice && !draggingEvent && !resizingEvent && (
+      {hoveredEvent && !draggingEvent && !resizingEvent && (
         <div
           style={{
             ...styles.tooltip,
@@ -1097,82 +1050,6 @@ export function YearlyCalendar({
           </div>
         </div>
       )}
-
-      {/* タップツールチップ（モバイル用） */}
-      {tappedEvent && !draggingEvent && !resizingEvent && (() => {
-        // 上にスペースが足りない場合は下に表示
-        const showBelow = tappedEvent.y < 100;
-        return (
-        <div
-          data-mobile-tooltip
-          style={{
-            position: "fixed",
-            zIndex: 200,
-            left: tappedEvent.x,
-            top: showBelow ? tappedEvent.bottom : tappedEvent.y,
-            transform: showBelow
-              ? "translate(-50%, 8px)"
-              : "translate(-50%, -100%) translateY(-8px)",
-          }}
-        >
-          <div style={{
-            backgroundColor: theme.tooltipBg,
-            color: theme.tooltipText,
-            fontSize: 12,
-            borderRadius: 8,
-            padding: "8px 10px",
-            whiteSpace: "pre-wrap",
-            maxWidth: 280,
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-          }}>
-            <div style={styles.tooltipTitle}>{tappedEvent.event.title}</div>
-            {tappedEvent.event.description && (
-              <div style={styles.tooltipDescription}>{tappedEvent.event.description}</div>
-            )}
-            <div style={styles.tooltipDate}>
-              {tappedEvent.event.date.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
-                month: "short",
-                day: "numeric",
-                weekday: "short",
-              })}
-              {tappedEvent.event.endDate && (
-                <>
-                  {isJa ? " 〜 " : " - "}
-                  {tappedEvent.event.endDate.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
-                    month: "short",
-                    day: "numeric",
-                    weekday: "short",
-                  })}
-                </>
-              )}
-            </div>
-            {onEventClick && (
-              <button
-                data-mobile-tooltip
-                onClick={() => {
-                  onEventClick(tappedEvent.event);
-                  setTappedEvent(null);
-                }}
-                style={{
-                  marginTop: 6,
-                  width: "100%",
-                  padding: "5px 0",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#fff",
-                  backgroundColor: theme.buttonPrimary,
-                  border: "none",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                {isJa ? "編集" : "Edit"}
-              </button>
-            )}
-          </div>
-        </div>
-        );
-      })()}
 
       {/* 移動/リサイズ確認ダイアログ */}
       {pendingMove && (
