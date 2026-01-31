@@ -3,6 +3,7 @@ export interface CalendarEvent {
   date: Date;
   endDate?: Date; // 複数日イベントの終了日
   title: string;
+  description?: string;
   color?: string;
   category?: string;
 }

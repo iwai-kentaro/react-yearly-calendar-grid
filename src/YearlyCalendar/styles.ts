@@ -204,18 +204,28 @@ export function createStyles(theme: Required<ThemeColors>) {
       fontSize: 12,
       borderRadius: 4,
       padding: "6px 8px",
-      whiteSpace: "nowrap",
+      whiteSpace: "pre-wrap",
+      maxWidth: 280,
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
     } as CSSProperties,
 
     tooltipTitle: {
       fontWeight: 500,
+      whiteSpace: "nowrap",
+    } as CSSProperties,
+
+    tooltipDescription: {
+      color: "rgba(255, 255, 255, 0.8)",
+      fontSize: 11,
+      marginTop: 3,
+      lineHeight: 1.4,
     } as CSSProperties,
 
     tooltipDate: {
       color: "rgba(255, 255, 255, 0.7)",
       fontSize: 10,
       marginTop: 2,
+      whiteSpace: "nowrap",
     } as CSSProperties,
 
     // 確認ダイアログ

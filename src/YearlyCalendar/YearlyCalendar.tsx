@@ -1008,6 +1008,9 @@ export function YearlyCalendar({
         >
           <div style={styles.tooltipContent}>
             <div style={styles.tooltipTitle}>{hoveredEvent.event.title}</div>
+            {hoveredEvent.event.description && (
+              <div style={styles.tooltipDescription}>{hoveredEvent.event.description}</div>
+            )}
             <div style={styles.tooltipDate}>
               {hoveredEvent.event.date.toLocaleDateString(isJa ? "ja-JP" : "en-US", {
                 month: "short",
