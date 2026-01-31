@@ -109,7 +109,9 @@ export function YearlyCalendar({
   theme: customTheme,
   showWeekday = false,
   locale = "en",
+  minRowHeight: minRowHeightProp,
 }: YearlyCalendarProps) {
+  const MIN_HEIGHT = minRowHeightProp ?? MIN_ROW_HEIGHT;
   // テーマをマージ
   const theme = useMemo(() => mergeTheme(customTheme), [customTheme]);
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -120,7 +122,7 @@ export function YearlyCalendar({
   const WEEKDAYS = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [rowHeight, setRowHeight] = useState(MIN_ROW_HEIGHT);
+  const [rowHeight, setRowHeight] = useState(MIN_HEIGHT);
 
   useEffect(() => {
     const updateRowHeight = () => {
@@ -129,7 +131,7 @@ export function YearlyCalendar({
         const calculatedHeight = Math.floor(
           (containerHeight - HEADER_HEIGHT) / 31
         );
-        setRowHeight(Math.max(calculatedHeight, MIN_ROW_HEIGHT));
+        setRowHeight(Math.max(calculatedHeight, MIN_HEIGHT));
       }
     };
 

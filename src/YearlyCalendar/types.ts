@@ -57,6 +57,7 @@ export interface YearlyCalendarProps {
   theme?: ThemeColors;
   locale?: string;
   showWeekday?: boolean; // 各セルの右上に曜日を表示
+  minRowHeight?: number; // 行の最小高さ（px）デフォルト: 20
 }
 
 export interface DayCellProps {
