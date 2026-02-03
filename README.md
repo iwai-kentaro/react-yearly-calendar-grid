@@ -67,6 +67,8 @@ function App() {
 | `theme` | `ThemeColors` | No | Theme color settings |
 | `highlightRange` | `{ start: Date; end: Date } \| null` | No | Date range to highlight |
 | `showWeekday` | `boolean` | No | Show weekday label in the top-right corner of each cell |
+| `locale` | `string` | No | Locale for date formatting (e.g., `"en-US"`, `"ja-JP"`) |
+| `minRowHeight` | `number` | No | Minimum row height in pixels (default: `20`) |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is clicked |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is double-clicked |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | No | Called when a date range is selected |
@@ -133,6 +135,12 @@ Events spanning multiple months are displayed continuously across each month.
 ### Date Range Selection
 Click and drag across dates to select a date range.
 
+### Event Display Order
+Events are automatically sorted for consistent display:
+1. Multi-day events are displayed first (leftmost)
+2. Sorted by start date (earlier first)
+3. If start dates are the same, longer events are displayed first
+
 ## Theme Customization
 
 All theme properties are optional. Only specify the properties you want to override - unspecified properties will use default values.
@@ -169,6 +177,7 @@ All theme properties are optional. Only specify the properties you want to overr
 | `textMuted` | Muted text color | `#6b7280` |
 | `tooltipBg` | Tooltip background | `#111827` |
 | `tooltipText` | Tooltip text color | `#ffffff` |
+| `dialogOverlay` | Dialog overlay background | `rgba(0, 0, 0, 0.5)` |
 | `buttonPrimary` | Button background | `#2563eb` |
 | `buttonPrimaryHover` | Button hover background | `#1d4ed8` |
 | `floatingDateBg` | Dragging date display background | `#2563eb` |

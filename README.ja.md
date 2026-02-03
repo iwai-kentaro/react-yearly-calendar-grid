@@ -67,6 +67,8 @@ function App() {
 | `theme` | `ThemeColors` | - | テーマカラー設定 |
 | `highlightRange` | `{ start: Date; end: Date } \| null` | - | ハイライトする日付範囲 |
 | `showWeekday` | `boolean` | - | 各セルの右上に曜日を表示 |
+| `locale` | `string` | - | 日付フォーマットのロケール（例: `"ja-JP"`, `"en-US"`） |
+| `minRowHeight` | `number` | - | 行の最小高さ（px）デフォルト: `20` |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付クリック時 |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付ダブルクリック時 |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | - | 日付範囲選択時 |
@@ -147,6 +149,12 @@ function App() {
 ### 日付範囲選択
 日付をドラッグして範囲を選択できます。
 
+### イベント表示順
+イベントは自動的にソートされ、常に一貫した表示順になります：
+1. 複数日イベントが先（左側）に表示
+2. 開始日が早い順
+3. 開始日が同じ場合、期間が長い順
+
 ## テーマカスタマイズ
 
 全てのテーマプロパティはオプションです。変更したいプロパティのみ指定すれば、それ以外はデフォルト値が使用されます。
@@ -183,6 +191,7 @@ function App() {
 | `textMuted` | 薄いテキスト | `#6b7280` |
 | `tooltipBg` | ツールチップ背景 | `#111827` |
 | `tooltipText` | ツールチップ文字 | `#ffffff` |
+| `dialogOverlay` | ダイアログオーバーレイ背景 | `rgba(0, 0, 0, 0.5)` |
 | `buttonPrimary` | ボタン背景 | `#2563eb` |
 | `buttonPrimaryHover` | ボタンホバー | `#1d4ed8` |
 | `floatingDateBg` | ドラッグ中日付表示 | `#2563eb` |

@@ -79,7 +79,16 @@ function getMonthSpans(
 function calculateLanes(spans: MonthSpan[]): Map<string, number> {
   const laneMap = new Map<string, number>();
   const lanes: { endDay: number }[] = [];
-  const sorted = [...spans].sort((a, b) => a.startDay - b.startDay);
+  const sorted = [...spans].sort((a, b) => {
+    const aIsMultiDay = a.endDay > a.startDay ? 1 : 0;
+    const bIsMultiDay = b.endDay > b.startDay ? 1 : 0;
+    // 複数日イベントを先（左側）に配置
+    if (aIsMultiDay !== bIsMultiDay) return bIsMultiDay - aIsMultiDay;
+    // 開始日が早い順
+    if (a.startDay !== b.startDay) return a.startDay - b.startDay;
+    // 開始日が同じ場合、期間が長い順
+    return (b.endDay - b.startDay) - (a.endDay - a.startDay);
+  });
 
   sorted.forEach((span) => {
     let laneIndex = lanes.findIndex((lane) => lane.endDay < span.startDay);
