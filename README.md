@@ -69,6 +69,7 @@ function App() {
 | `showWeekday` | `boolean` | No | Show weekday label in the top-right corner of each cell |
 | `locale` | `string` | No | Locale for date formatting (e.g., `"en-US"`, `"ja-JP"`) |
 | `minRowHeight` | `number` | No | Minimum row height in pixels (default: `20`) |
+| `showContinuationTitle` | `boolean` | No | Show event title on continuation spans across months (default: `true`) |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is clicked |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | No | Called when a date is double-clicked |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | No | Called when a date range is selected |

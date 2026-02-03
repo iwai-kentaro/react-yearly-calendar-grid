@@ -58,6 +58,7 @@ export interface YearlyCalendarProps {
   locale?: string;
   showWeekday?: boolean; // 各セルの右上に曜日を表示
   minRowHeight?: number; // 行の最小高さ（px）デフォルト: 20
+  showContinuationTitle?: boolean; // 月またぎ先にタイトルを表示 デフォルト: true
 }
 
 export interface DayCellProps {

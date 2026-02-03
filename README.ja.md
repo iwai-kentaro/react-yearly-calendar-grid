@@ -69,6 +69,7 @@ function App() {
 | `showWeekday` | `boolean` | - | 各セルの右上に曜日を表示 |
 | `locale` | `string` | - | 日付フォーマットのロケール（例: `"ja-JP"`, `"en-US"`） |
 | `minRowHeight` | `number` | - | 行の最小高さ（px）デフォルト: `20` |
+| `showContinuationTitle` | `boolean` | - | 月またぎ先にイベントタイトルを表示（デフォルト: `true`） |
 | `onDateClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付クリック時 |
 | `onDateDoubleClick` | `(date: Date, events: CalendarEvent[]) => void` | - | 日付ダブルクリック時 |
 | `onDateRangeSelect` | `(startDate: Date, endDate: Date) => void` | - | 日付範囲選択時 |

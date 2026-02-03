@@ -119,6 +119,7 @@ export function YearlyCalendar({
   showWeekday = false,
   locale = "en",
   minRowHeight: minRowHeightProp,
+  showContinuationTitle = true,
 }: YearlyCalendarProps) {
   const MIN_HEIGHT = minRowHeightProp ?? MIN_ROW_HEIGHT;
   // テーマをマージ
@@ -883,7 +884,7 @@ export function YearlyCalendar({
                       )}
 
                       {/* 縦書きタイトル（2日以上） */}
-                      {span.isStart && spanDays >= 2 && (
+                      {(span.isStart || showContinuationTitle) && spanDays >= 2 && (
                         <div style={styles.verticalTitle}>
                           <span
                             style={{
@@ -898,7 +899,7 @@ export function YearlyCalendar({
                       )}
 
                       {/* 横書きタイトル（1日のみ） */}
-                      {span.isStart && spanDays === 1 && (
+                      {(span.isStart || showContinuationTitle) && spanDays === 1 && (
                         <div style={styles.horizontalTitle}>
                           <span style={styles.truncate}>{span.event.title}</span>
                         </div>
